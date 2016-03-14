@@ -13,64 +13,46 @@ var Endpoints = []string{
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
-  fmt.Println( "handler" )
-
-  flusher, ok := w.(http.Flusher)
-
-  if !ok {
-    fmt.Println( "can't initialize flusher")
-    return
-  }
-
+  flusher, _ := w.(http.Flusher)
 
   notify := w.(http.CloseNotifier).CloseNotify()
 
   go func() {
     <-notify
-    fmt.Println( "closed" )
+    fmt.Println( "Client connection closed" )
   }()
 
   w.Header().Set("Content-Type", "text/plain; charset=utf-8")
   w.WriteHeader(http.StatusOK)
-
-
-  // endpointChan := make(chan []byte)
 
   var requestGroup sync.WaitGroup
 
   requestGroup.Add( len( Endpoints ) )
 
   for _, endpoint := range Endpoints {
+    fmt.Println( "Sending endpoint request " + endpoint )
     go func( endpoint string, w http.ResponseWriter ) {
       defer requestGroup.Done()
-      fmt.Println( "Sending req to endpoint " + endpoint )
       resp, _ := http.Get( endpoint )
       body, _ := ioutil.ReadAll( resp.Body )
-        resp.Body.Close()
-        fmt.Println( body )
-        w.Write( body )
-        w.Write( []byte("\n" ) )
-        flusher.Flush()
+      resp.Body.Close()
+
+      fmt.Println( "Receiving & pushing endpoint response " + string(body) )
+
+      w.Write( body )
+      w.Write( []byte("\n" ) )
+      flusher.Flush()
       // endpointChan <- body
     }(endpoint, w )
   }
 
 
-  // w.Write( <-endpointChan )
-  // w.Write( []byte("\n") )
-
-  // flusher.Flush()
-
-  fmt.Println( "before wait?")
-
   requestGroup.Wait()
-
-  fmt.Println( "after wait? ")
 
 }
 
 func main() {
-    fmt.Println( "init" )
+    fmt.Println( "Gateway up" )
     http.HandleFunc("/", handler)
-    http.ListenAndServe(":5000", nil)
+    http.ListenAndServe(":5001", nil)
 }
