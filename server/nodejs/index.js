@@ -1,6 +1,7 @@
 var express = require( 'express' ),
     request = require( 'request' ),
     async = require( 'async' ),
+    colors = require( 'colors' ),
     app = express()
 
 const endpoints = [
@@ -10,27 +11,21 @@ const endpoints = [
   'http://127.0.0.1:2003/'
 ]
 
-app.use( function( req, res, next ) {
-  res.header( 'Access-Control-Allow-Origin', '*' )
-  // res.header( 'Access-Control-Allow-Headers', 'X-Requested-With' )
-  next()
-})
-
 app.get( '/', function( req, res ) {
   req.socket.setTimeout( 99999 )
 
   var messageCount = 0
 
   async.each( endpoints, function( endpoint, callback ) {
-    console.log( 'sending endpoint request', endpoint )
+    console.log( 'Sending endpoint request', endpoint )
     request( endpoint, function( err, endpointResponse, body ) {
-      console.log( 'receiving endpoint response', body )
-      res.write( 'id: ' + messageCount + '\n' )
-      res.write( 'data: ' + body + '\n\n' )
+      console.log( 'Receiving & pushing endpoint response', body )
+      res.write( body + "\n" )
       messageCount++
       callback()
     })
   }, function() {
+    res.end()
   })
 
   res.writeHead( 200, {
@@ -39,7 +34,9 @@ app.get( '/', function( req, res ) {
     'Connection': 'keep-alive'
   })
 
-  res.write( '\n' )
+  // res.write( '\n' )
 })
 
-app.listen( 5000 )
+app.listen( 5000, function() {
+  console.log( 'Gateway up' )
+})
