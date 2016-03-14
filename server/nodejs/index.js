@@ -17,16 +17,21 @@ app.use( function( req, res, next ) {
 })
 
 app.get( '/', function( req, res ) {
-  // req.socket.setTimeout( Infinity )
+  req.socket.setTimeout( 99999 )
 
-  var messageCount = 1
+  var messageCount = 0
 
-  setTimeout( function() {
-
-    res.write('id: ' + messageCount + '\n')
-    res.write("data: " + 'hello' + '\n\n')
-
-  }, 2000 )
+  async.each( endpoints, function( endpoint, callback ) {
+    console.log( 'sending endpoint request', endpoint )
+    request( endpoint, function( err, endpointResponse, body ) {
+      console.log( 'receiving endpoint response', body )
+      res.write( 'id: ' + messageCount + '\n' )
+      res.write( 'data: ' + body + '\n\n' )
+      messageCount++
+      callback()
+    })
+  }, function() {
+  })
 
   res.writeHead( 200, {
     'Content-Type': 'text/event-stream',
