@@ -6,13 +6,16 @@ const endpointName = process.env.ENDPOINT || 'unknown',
 
 function delay(callback) {
   var delayTime = Math.random() * delayFactor
-  console.log('delayTime', delayTime )
-  setTimeout( callback, delayTime )
+  setTimeout( function() {
+    callback( delayTime )
+  }, delayTime )
 }
 
 app.get( '/', function( req, res ) {
+  console.log( 'Receiving request' )
   var message = { data: ['hello from endpoint '+endpointName] }
-  delay( function() {
+  delay( function(t) {
+    console.log( 'Sending response, delay:', t )
     res.json( message )
   })
 })
