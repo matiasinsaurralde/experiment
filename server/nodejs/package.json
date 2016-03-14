@@ -9,6 +9,8 @@
   "author": "Matias Insaurralde <matias@insaurral.de>",
   "license": "MIT",
   "dependencies": {
-    "express": "^4.13.4"
+    "async": "^1.5.2",
+    "express": "^4.13.4",
+    "request": "^2.69.0"
   }
 }
