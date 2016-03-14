@@ -1,8 +1,8 @@
-$(document).ready( function() {
-  function poll() {
-    $.ajax({ url: 'server', success: function(data) {
-      console.log( 'data?', data )
-    }, dataType: "json", complete: poll, timeout: 1000 })
+window.onload = function() {
+  var es = new EventSource( 'http://127.0.0.1:5000/' )
+  console.log( 'es' )
+  es.onmessage = function (event) {
+    console.log('message', event, event.data )
   }
-  poll()
-})
+
+}
