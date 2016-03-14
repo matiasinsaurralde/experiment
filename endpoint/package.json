@@ -10,6 +10,7 @@
   "author": "Matias Insaurralde <matias@insaurral.de>",
   "license": "MIT",
   "dependencies": {
+    "colors": "^1.1.2",
     "express": "^4.13.4"
   }
 }
